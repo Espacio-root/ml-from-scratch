@@ -3,7 +3,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
 import pandas as pd
 
-df = pd.read_csv('iris.csv')
+df = pd.read_csv('../data/iris.csv')
 X, y = df.iloc[:, :-1], df.iloc[:, -1]
 for i, v in enumerate(y.unique()):
     y = y.replace(v, i)
