@@ -1,5 +1,4 @@
 import numpy as np
-import pandas as pd
 
 # Node class
 class Node:
@@ -30,33 +29,32 @@ class DecisionTreeClassifier:
         num_samples = np.shape(X)[0]
         
         # if the current node is a decision node
-        if num_samples > self.min_samples_split and self.max_depth > depth:
+        if num_samples >= self.min_samples_split and self.max_depth >= depth:
             # get the best split with the maximum information gain
             best_split = self._get_best_split(X, y)
 
-            # recursively generate the the subtrees
-            left_subtree = self._build_tree(depth=depth+1,**best_split['left'])
-            right_subtree = self._build_tree(depth=depth+1,**best_split['right'])
+            if best_split['information_gain'] > 0:
+                # recursively generate the the subtrees
+                left_subtree = self._build_tree(depth=depth+1,**best_split['left'])
+                right_subtree = self._build_tree(depth=depth+1,**best_split['right'])
 
-            return Node(best_split['feature_index'], best_split['threshold'], left_subtree, right_subtree)
+                return Node(best_split['feature_index'], best_split['threshold'], left_subtree, right_subtree)
 
         Y = list(y)
         value = max(Y, key=Y.count)
         return Node(value=value)
-        
-
 
     def _get_best_split(self, X, y):
-        num_features = np.Shape(X)[1]
+        num_features = np.shape(X)[1]
         max_gain = -float('inf')
         best_split = {}
 
         # iterates through each possible feature and threshold combination
         for feature_index in range(num_features):
-            for threshold in np.unique(X[:, feature_index])
+            for threshold in np.unique(X.iloc[:, feature_index]):
                 # condition for dividing the samples
-                left_c = X[X.columns[feature_index]] <= threshold
-                right_c = X[X.columns[feature_index]] <= threshold
+                left_c = X.iloc[:, feature_index] <= threshold
+                right_c = X.iloc[:, feature_index] > threshold
 
                 # divides all the samples into two nodes based on the feature_index and threshold
                 left_X, right_X = X[left_c], X[right_c]
@@ -69,6 +67,8 @@ class DecisionTreeClassifier:
                     best_split['threshold'] = threshold
                     best_split['left'] = {'X': left_X, 'y': left_y}
                     best_split['right'] = {'X': right_X, 'y': right_y}
+                    best_split['information_gain'] = information_gain
+                    max_gain = information_gain
 
         return best_split
     
@@ -88,7 +88,7 @@ class DecisionTreeClassifier:
         entropy = 0
         for cls in classes:
             p_cls = len(y[y == cls]) / len(y)
-            entropy += -p_cls * np.logs(p_cls)
+            entropy += -p_cls * np.log2(p_cls)
         return entropy
 
     def _calculate_gini(self, y):
@@ -103,15 +103,13 @@ class DecisionTreeClassifier:
         self.root = self._build_tree(X, y)
 
     def predict(self, X):
-        return [self._make_prediction(x, self.root) for x in X]
+        return [self._make_prediction(x, self.root) for _, x in X.iterrows()]
 
     def _make_prediction(self, x, tree):
         if tree.value != None:
             return tree.value
-        if x[x.columns[tree.feature_index]] <= tree.threshold:
+        if x.iloc[tree.feature_index] <= tree.threshold:
             return self._make_prediction(x, tree.left)
         else:
             return self._make_prediction(x, tree.right)
-
-
 
