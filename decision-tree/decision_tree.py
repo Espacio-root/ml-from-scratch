@@ -51,10 +51,10 @@ class DecisionTreeClassifier:
 
         # iterates through each possible feature and threshold combination
         for feature_index in range(num_features):
-            for threshold in np.unique(X.iloc[:, feature_index]):
+            for threshold in np.unique(X[:, feature_index]):
                 # condition for dividing the samples
-                left_c = X.iloc[:, feature_index] <= threshold
-                right_c = X.iloc[:, feature_index] > threshold
+                left_c = X[:, feature_index] <= threshold
+                right_c = X[:, feature_index] > threshold
 
                 # divides all the samples into two nodes based on the feature_index and threshold
                 left_X, right_X = X[left_c], X[right_c]
@@ -84,7 +84,7 @@ class DecisionTreeClassifier:
             raise ValueError('criterion can only be "entropy" or "gini"')
 
     def _calculate_entropy(self, y):
-        classes = y.unique()
+        classes = np.unique(y)
         entropy = 0
         for cls in classes:
             p_cls = len(y[y == cls]) / len(y)
@@ -100,15 +100,15 @@ class DecisionTreeClassifier:
         return 1 - gini
 
     def fit(self, X, y):
-        self.root = self._build_tree(X, y)
+        self.root = self._build_tree(np.array(X), np.array(y))
 
     def predict(self, X):
-        return [self._make_prediction(x, self.root) for _, x in X.iterrows()]
+        return [self._make_prediction(np.array(x), self.root) for _, x in X.iterrows()]
 
     def _make_prediction(self, x, tree):
         if tree.value != None:
             return tree.value
-        if x.iloc[tree.feature_index] <= tree.threshold:
+        if x[tree.feature_index] <= tree.threshold:
             return self._make_prediction(x, tree.left)
         else:
             return self._make_prediction(x, tree.right)

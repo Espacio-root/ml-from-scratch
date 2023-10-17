@@ -1,4 +1,4 @@
-from decision_tree import DecisionTreeClassifier
+from random_forest import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
 import pandas as pd
@@ -9,7 +9,7 @@ for i, v in enumerate(y.unique()):
     y = y.replace(v, i)
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=.2, random_state=42)
 
-clf = DecisionTreeClassifier(max_depth=7)
+clf = RandomForestClassifier(max_depth=7)
 clf.fit(X_train, y_train)
 y_pred = clf.predict(X_test)
 
