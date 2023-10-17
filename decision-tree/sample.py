@@ -17,7 +17,7 @@ df = pd.read_csv('../data/titanic.csv')
 X, y = process_df(df)
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=.2, random_state=42)
 
-clf = DecisionTreeClassifier(max_depth=7)
+clf = DecisionTreeClassifier(max_depth=3)
 clf.fit(X_train, y_train)
 y_pred = clf.predict(X_test)
 

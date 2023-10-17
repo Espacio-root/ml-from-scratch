@@ -24,10 +24,15 @@ class DecisionTreeClassifier:
         self.min_samples_split = min_samples_split
         self.max_depth = max_depth
         self.criterion = criterion
+        self.tree_depth = 0
 
     def _build_tree(self, X, y, depth=1):
         num_samples = np.shape(X)[0]
         
+        # used later for print_tree function
+        if depth > self.tree_depth:
+            self.tree_depth = depth
+
         # if the current node is a decision node
         if num_samples >= self.min_samples_split and self.max_depth >= depth:
             # get the best split with the maximum information gain
@@ -100,6 +105,7 @@ class DecisionTreeClassifier:
         return 1 - gini
 
     def fit(self, X, y):
+        self.column_names = list(X.columns)
         self.root = self._build_tree(np.array(X), np.array(y))
 
     def predict(self, X):
@@ -112,4 +118,21 @@ class DecisionTreeClassifier:
             return self._make_prediction(x, tree.left)
         else:
             return self._make_prediction(x, tree.right)
+
+    def _print_tree(self, tree, i=0):
+        if self.root == None:
+            print(f'Decision Tree has not been trained yet')
+            return
+        if tree == None:
+            return ''
+        if tree.value is not None: return tree.value
+        feature_name = self.column_names[tree.feature_index]
+        return f'{feature_name} <= {tree.threshold}\n' + \
+                f'{"|" * i}left: {self.print_tree(tree.left, i+1)}\n' + \
+                f'{"|" * i}right: {self.print_tree(tree.right, i+1)}'
+
+    def print_tree(self):
+        print(self._print_tree(self.root))
+            
+        
 
