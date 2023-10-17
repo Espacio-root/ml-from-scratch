@@ -105,11 +105,11 @@ class DecisionTreeClassifier:
         return 1 - gini
 
     def fit(self, X, y):
-        self.column_names = list(X.columns)
+        self.column_names = list(X.columns) if not isinstance(X, np.ndarray) else None
         self.root = self._build_tree(np.array(X), np.array(y))
 
     def predict(self, X):
-        return [self._make_prediction(np.array(x), self.root) for _, x in X.iterrows()]
+        return [self._make_prediction(np.array(x), self.root) for x in np.array(X)]
 
     def _make_prediction(self, x, tree):
         if tree.value != None:
