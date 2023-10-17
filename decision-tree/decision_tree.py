@@ -128,8 +128,8 @@ class DecisionTreeClassifier:
         if tree.value is not None: return tree.value
         feature_name = self.column_names[tree.feature_index]
         return f'{feature_name} <= {tree.threshold}\n' + \
-                f'{"|" * i}left: {self.print_tree(tree.left, i+1)}\n' + \
-                f'{"|" * i}right: {self.print_tree(tree.right, i+1)}'
+                f'{"|" * i}left: {self._print_tree(tree.left, i+1)}\n' + \
+                f'{"|" * i}right: {self._print_tree(tree.right, i+1)}'
 
     def print_tree(self):
         print(self._print_tree(self.root))
