@@ -1,5 +1,5 @@
 import numpy as np
-
+np.random.seed(0)
 
 class ActLinear:
     def __call__(self, X):
@@ -32,6 +32,7 @@ class ActSoftmax:
             jacobian = np.diagflat(output) - np.dot(output, output.T)
             self.dinputs[i] = np.dot(jacobian, dZ_row)
         return self.dinputs
+
 
 class CategoricalCrossEntropy:
     def __init__(self, net=None, epsilon=1e-7):
@@ -90,40 +91,40 @@ class Layer:
         self.act = act
         self.step_size = step_size
 
+    def __str__(self, i=None):
+        return f'{i}: Dense Layer with {self.w.shape[0]} inputs and {self.w.shape[1]} outputs'
+
     def forward(self, X):
         self.X = X
-        return self.act(X @ self.w + self.b)
+        return self.act(np.dot(self.X, self.w) + self.b)
 
     def backward(self, dZ):
+        self.dA = dZ
         dA = self.act.backward(dZ)
-        dw = self.X.T @ dA
-        db = np.sum(dA, axis=0, keepdims=True)
+        dW = np.dot(self.X.T, dA)
+        dB = np.sum(dA, axis=0, keepdims=True)
+        dinputs = np.dot(dA, self.w.T)
 
-        self.w -= self.step_size * dw
-        self.b -= self.step_size * db
+        self.w -= self.step_size * dW
+        self.b -= self.step_size * dB
+        return dinputs
 
-        return dA @ self.w.T
 
 class Net:
     def __init__(self, config, step_size=0.01, softmax=False):
         self.step_size = step_size
         self.layers = [Layer(*config[i : i + 2], step_size=step_size, act=ActRelu()) for i in range(len(config) - 2)]
-        last_layer_act = ActSigmoid() if softmax else ActLinear()
+        last_layer_act = ActSoftmax() if softmax else ActLinear()
         self.layers.append(Layer(*config[-2:], step_size=step_size, act=last_layer_act))
 
+    def __str__(self):
+        return '\n'.join([layer.__str__(i+1) for i, layer in enumerate(self.layers)])
 
     def __call__(self, X):
         for layer in self.layers:
             X = layer.forward(X)
         return X
 
-    def update_step_size(self, new_step_size):
-        self.step_size = new_step_size
-        for layer in self.layers:
-            layer.step_size = new_step_size
-
     def backward(self, dZ):
         for layer in reversed(self.layers):
             dZ = layer.backward(dZ)
-
-
