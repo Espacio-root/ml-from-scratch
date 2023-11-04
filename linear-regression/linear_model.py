@@ -6,14 +6,11 @@ class LinearRegression:
     def __init__(self):
         self.coef_ = None
         self.intercept_ = None
-    
-    def fit(self, X, Y):
-        X_mean, Y_mean = np.mean(X), np.mean(Y)
-        SPxy = np.sum(np.dot(X-X_mean, Y-Y_mean))
-        SSxx = np.sum((X-X_mean)**2)
 
-        self.coef_ = SPxy / SSxx
-        self.intercept_ = Y_mean - self.coef_ * X_mean
+    def fit(self, X, Y):
+        X = np.column_stack((X, np.ones(X.shape[0])))
+        b = (np.linalg.inv(X.T @ X)) @ (X.T @ Y)
+        self.coef_, self.intercept_ = b[:-1, :].reshape(1, -1), b[-1, :]
 
     def predict(self, X):
         X = X.copy()
