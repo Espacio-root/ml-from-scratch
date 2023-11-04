@@ -4,7 +4,6 @@ import random
 from linear_model import LinearRegression as LocalLinearRegression
 from sklearn.linear_model import LinearRegression as SklearnLinearRegression
 
-
 x = np.linspace(0, 10, 100)
 y = np.linspace(0, 10, 100)
 z = np.linspace(0, 10, 100)
@@ -30,7 +29,6 @@ model2, Plane2 = generate_model_plane(SklearnLinearRegression())
 
 print(f'Local Linear Regression Model: {model1.coef_}, {model1.intercept_}')
 print(f'Sklearn Linear Regression Model: {model2.coef_}, {model2.intercept_}')
-
 
 fig = plt.figure(figsize=(10, 10))
 ax = plt.axes(projection='3d')
